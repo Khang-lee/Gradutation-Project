@@ -32,6 +32,7 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 def init_db():
     """Gọi hàm khởi tạo CSDL từ module db_handler."""
     print("Initializing database schema via db_handler...")
+    print("If the database and tables already exist, this will have no effect.")
     # Giả sử db_handler có hàm này để tạo bảng nếu chưa có
     # db_handler.init_db()
 
