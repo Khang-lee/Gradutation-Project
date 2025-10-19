@@ -1,0 +1,7 @@
+
+ultralytics>=8.0.0
+opencv-python
+Pillow
+tensorflow==2.12.0
+keras==2.12.0
+numpy
