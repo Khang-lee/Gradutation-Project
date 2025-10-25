@@ -1,0 +1,729 @@
+/* ========================================
+   BIẾN MÀU VÀ CÀI ĐẶT CHUNG
+   ======================================== */
+:root {
+    --primary-color: #0077b6;
+    --primary-dark-color: #005a8c;
+    --background-color-light: #f0f0f0;
+    --card-color-light: #ffffff;
+    --text-color-light: #000;
+    --text-color-dark: #fff;
+    --danger-color: #e5383b;
+    --success-color: #2b9348;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: var(--background-color-light);
+    color: var(--text-color-light);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* ========================================
+   LAYOUT TRANG ĐĂNG NHẬP / ĐĂNG KÝ
+   ======================================== */
+.login-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.left-panel {
+    flex: 2;
+    background-color: var(--success-color);
+    color: var(--text-color-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 1%;
+    padding: 400px;
+    gap: 25px;
+    background-position: center center;
+    background-image: url(../images/app_images/img-back-groud.png);
+}
+
+
+.info-box {
+    background-color: var(--primary-dark-color);
+    padding: 50%;
+    padding: 50Px;
+    border-radius: 10px;
+    width: 300%;
+    max-width: 700px;
+    max-height: 300px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    transition: transform 0.3s ease-in-out, box-shadow 0.1s ease-in-out;
+    cursor: pointer;
+    display: flex; /*có thể để icon hay text trên 1 hàng ngang hay dọc*/
+    flex-direction: column;
+    align-items: center;
+    background-image: url(../images/app_images/baovetraidat.png);
+}
+
+.info-box:hover {
+    transform: scale(1.08) translateY(-6px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    cursor: pointer;
+    z-index: 10;
+    position: relative;
+    background-image: url(../images/app_images/baovetraidat.png);
+    filter: blur(1px);
+}
+
+.info-box img {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 12px;
+    border-radius: 15%;
+    object-fit: contain; /*giúp icon hiển thị trọn vẹn*/
+    background-image: url(../images/app_images/baovetraidat.png);
+}
+
+.info-box h3 {
+    font-size: 35px;
+    margin: 0;
+    font-weight: bold;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.left-panel img {
+    width: 150px;
+    height: 100px;
+    opacity: 10px;
+}
+
+.left-panel h1 {
+    display: none;
+}
+
+.right-panel {
+    flex: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-color-light);
+}
+
+/* ========================================
+   KHUNG FORM VÀ CÁC Ô NHẬP LIỆU
+   ======================================== */
+.form-frame {
+    width: 380px;
+    padding: 180px 40px;
+    background-color: var(--card-color-light);
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    gap: 25px;
+}
+
+.form-frame input[type="text"],
+.form-frame input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 7px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; /* Quan trọng để padding không làm vỡ layout */
+    font-size: 14px;
+}
+
+.form-frame button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+.btn-primary:hover {
+    background-color: var(--primary-dark-color);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    margin-top: 10px;
+}
+.btn-secondary:hover {
+    background-color: #f0f8ff;
+}
+
+/* --- Nút Đăng nhập Mạng Xã hội --- */
+.social-login-divider {
+    text-align: center;
+    margin: 10px 0 10px 0; /* Tăng khoảng cách */
+    color: #888;
+    font-size: 13px;
+    position: relative; /* Để tạo đường kẻ */
+    overflow: hidden; /* Ẩn phần thừa của đường kẻ */
+}
+
+/* Tùy chọn: Thêm đường kẻ hai bên chữ "Hoặc đăng nhập bằng" */
+.social-login-divider::before,
+.social-login-divider::after {
+    content: "";
+    display: inline-block;
+    width: 40%; /* Chiều dài đường kẻ */
+    height: 1px;
+    background-color: #ccc;
+    vertical-align: middle;
+    position: absolute;
+    top: 50%;
+}
+.social-login-divider::before {
+    right: 100%; /* Đẩy đường kẻ trái ra */
+    margin-right: 15px; /* Khoảng cách với chữ */
+}
+.social-login-divider::after {
+    left: 100%; /* Đẩy đường kẻ phải ra */
+    margin-left: 15px; /* Khoảng cách với chữ */
+}
+
+
+.social-login-buttons {
+    display: flex; /* **Quan trọng: Đặt các nút trên một hàng** */
+    flex-direction: column;
+    gap: 10px; /* Khoảng cách giữa hai nút */
+    margin-top: 15px;
+}
+
+.social-login-buttons button {
+    flex: 1; /* Chia đều không gian cho hai nút */
+    width: 100%;
+    padding: 10px; /* Giảm padding một chút */
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-size: 14px; /* Giảm cỡ chữ */
+
+    background-repeat: no-repeat;
+    background-position: 35% center;
+    background-size: 25px 25px;
+    box-sizing: border-box;
+}
+.social-login-buttons button:hover {
+    opacity: 0.9;
+}
+
+.btn-X {
+    background-color: #000000;
+    background-image: url('../images/app_images/X.png');
+}
+
+.btn-facebook {
+    background-color: #4267B2;
+    background-image: url('../images/app_images/facebook.png');
+}
+
+.btn-whatapps {
+    background-color: #35bd59;
+    background-image: url('../images/app_images/whatapps.png');
+}
+
+.btn-gg {
+    background-color: #000000e3;
+    background-image: url('../images/app_images/gg.png');
+    text-align: center;
+    
+    border: 2px #000000 solid;
+}
+/* ========================================
+   GIAO DIỆN TAB (ĐĂNG NHẬP / ĐĂNG KÝ)
+   ======================================== */
+.tab-container {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-size: 18px;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease-in-out;
+    flex-grow: 1; /* Để 2 tab có chiều rộng bằng nhau */
+}
+
+.tab:hover {
+    background-color: #f7f7f7;
+}
+
+.tab.active {
+    font-weight: bold;
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.form-content {
+    display: none; /* Ẩn tất cả các form theo mặc định */
+}
+
+.form-content.active {
+    display: block; /* Chỉ hiện form đang được chọn */
+}
+
+/* ========================================
+   LAYOUT TRANG CHÍNH (HOME)
+   ======================================== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 30px;
+    background-color: var(--card-color-light);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header #user-greeting {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+
+.header #logout-button {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    margin-left: auto;
+    transition: background-color 0.2s;
+}
+
+.header #logout-button:hover {
+    background-color: #c92a2a;
+}
+
+.header #profile-user-button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.2s;
+}
+.header #profile-user-button:hover {
+    background-color: #005a8c;
+}
+
+main {
+    padding: 20px;
+}
+
+.action-bar {
+    margin-bottom: 20px;
+}
+
+.action-bar button {
+    margin-right: 10px;
+    padding: 10px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+.action-bar button:hover {
+    background-color: #e9e9e9;
+}
+
+#admin-buttons button {
+    background-color: var(--success-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    border-color: var(--success-color);
+}
+#admin-buttons button:hover {
+    background-color: #1e7e34;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    margin-left: auto;
+    transition: background-color 0.2s;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.category-card {
+    padding: 20px;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.category-card img {
+    width: 100px;
+    height: 100px;
+}
+
+.category-card h3 {
+    margin: 10px 0 5px 0;
+    text-transform: uppercase;
+}
+
+/* ========================================
+   STYLES CHO POP-UP LỚN (MODAL) - THÊM VÀO CUỐI
+   ======================================== */
+#info-modals-container { /* Thêm container để dễ quản lý nếu cần */
+    position: relative;
+}
+
+.info-modal {
+    display: none; /* Mặc định ẩn pop-up */
+    position: fixed; /* Giữ nguyên vị trí trên màn hình */
+    z-index: 1000; /* Đảm bảo nằm trên mọi thứ */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Cho phép cuộn nếu nội dung quá dài */
+    background-color: rgba(0, 0, 0, 0.7); /* Lớp phủ mờ đen */
+    /* Sử dụng flex để căn giữa nội dung */
+    justify-content: center;
+    align-items: center;
+    padding: 20px; /* Khoảng cách nhỏ quanh modal */
+}
+
+.modal-content {
+    background-color: var(--card-color-light); /* Nền trắng cho nội dung */
+    margin: auto; /* Căn giữa */
+    padding: 30px 40px; /* Tăng padding */
+    border-radius: 10px;
+    width: 90%; /* Chiều rộng tương đối */
+    max-width: 700px; /* Giới hạn kích thước tối đa */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    position: relative; /* Để định vị nút đóng */
+    text-align: center;
+    animation: fadeInScale 0.4s ease-out; /* Hiệu ứng mở modal */
+    color: var(--text-color-light); /* Màu chữ */
+}
+
+/* Hiệu ứng xuất hiện cho modal */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+.modal-content img {
+    width: 150px; /* Kích thước ảnh trong modal */
+    height: auto; /* Giữ tỷ lệ */
+    max-height: 150px;
+    border-radius: 15%; /* Bo tròn ảnh */
+    margin-bottom: 20px;
+    object-fit: cover; /* Đảm bảo ảnh không bị méo */
+}
+
+.modal-content h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: var(--primary-dark-color);
+}
+
+.modal-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: left; /* Căn lề trái cho đoạn văn */
+    margin-bottom: 0;
+}
+
+/* Nút đóng (X) */
+.close-modal {
+    color: #aaa;
+    position: absolute; /* Định vị tuyệt đối so với modal-content */
+    top: 10px;
+    right: 20px;
+    font-size: 35px; /* Tăng kích thước */
+    font-weight: bold;
+    line-height: 1; /* Căn chỉnh chiều cao */
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: var(--danger-color);
+    text-decoration: none;
+}
+
+/* ========================================
+   STYLES CHO TRANG HOME (/templates/home.html)
+   ======================================== */
+
+/* --- Header --- */
+.header {
+    background-color: var(--card-color-light); /* Màu nền header */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* Đổ bóng nhẹ */
+    padding: 15px 30px; /* Tăng padding */
+    position: sticky; /* Giữ header cố định khi cuộn (tùy chọn) */
+    top: 0;
+    z-index: 100; /* Đảm bảo header nằm trên */
+}
+
+.header #user-greeting {
+    font-size: 1.1em; /* Kích thước chữ lời chào */
+    color: var(--primary-dark-color); /* Màu chữ đậm hơn */
+}
+
+/* --- Action Bar (Thanh chứa nút) --- */
+.action-bar {
+    background-color: var(--card-color-light); /* Nền trắng cho thanh action */
+    padding: 15px 20px;
+    margin: 20px; /* Khoảng cách với header và content */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    display: flex; /* Sắp xếp các nút */
+    flex-wrap: wrap; /* Cho phép nút xuống dòng nếu không đủ chỗ */
+    gap: 10px; /* Khoảng cách giữa các nút */
+}
+
+.action-bar button {
+    padding: 10px 18px; /* Tăng padding nút */
+    font-size: 14px; /* Cỡ chữ nút */
+    border: 1px solid #ccc;
+    background-color: #f9f9f9; /* Màu nền nút nhẹ */
+    transition: background-color 0.2s, transform 0.1s;
+}
+.action-bar button:hover {
+    background-color: #e9e9e9;
+    transform: translateY(-1px); /* Hiệu ứng nhấc lên khi hover */
+}
+.action-bar button:active {
+    transform: translateY(0px); /* Hiệu ứng nhấn xuống */
+}
+
+/* Nút đặc biệt của Admin */
+#admin-buttons button {
+    background-color: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+#admin-buttons button:hover {
+    background-color: #1e7e34; /* Màu hover đậm hơn */
+}
+
+/* --- Info Grid (Lưới hiển thị loại rác) --- */
+main {
+    padding: 0 20px 20px 20px; /* Giảm padding trên cùng của main */
+}
+
+main > h3 { /* Tiêu đề "Thông Tin Phân Loại Cơ Bản" */
+    margin-left: 20px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.info-grid {
+    display: grid;
+    /* Tự động điều chỉnh số cột, mỗi cột tối thiểu 250px */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px; /* Khoảng cách giữa các thẻ */
+    padding: 0 20px; /* Thêm padding cho lưới */
+}
+
+.category-card {
+    padding: 25px; /* Tăng padding trong thẻ */
+    border-radius: 10px; /* Bo tròn góc nhiều hơn */
+    color: white;
+    text-align: center;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: flex; /* Căn chỉnh nội dung bên trong */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.category-card:hover {
+    transform: translateY(-8px); /* Nhấc lên nhiều hơn khi hover */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+}
+
+.category-card img {
+    width: 90px; /* Kích thước ảnh */
+    height: 90px;
+    margin-bottom: 15px; /* Khoảng cách dưới ảnh */
+    object-fit: contain;
+}
+
+.category-card h3 {
+    margin: 10px 0 5px 0;
+    text-transform: uppercase;
+    font-size: 1.2em;
+}
+
+.category-card p {
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+/* ========================================
+   STYLES CHO TRANG HOME (/templates/home.html)
+   ======================================== */
+
+/* --- Header --- */
+.header {
+    background-color: var(--card-color-light); /* Màu nền header */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  /* Đổ bóng nhẹ */
+    padding: 15px 30px; /* Tăng padding */
+    display: flex; /* Đã có từ CSS trước */
+    justify-content: space-between; /* Đã có */
+    align-items: center; /* Đã có */
+    /* position: sticky; */ /* Bỏ sticky nếu không muốn header cố định */
+    /* top: 0; */
+    /* z-index: 100; */
+}
+
+.header #user-greeting {
+    font-size: 1.1em; /* Kích thước chữ lời chào */
+    color: var(--primary-dark-color); /* Màu chữ đậm hơn */
+    font-weight: bold;
+}
+
+/* --- Action Bar (Thanh chứa nút) --- */
+.action-bar {
+    background-color: var(--card-color-light); /* Nền trắng cho thanh action */
+    padding: 15px 20px;
+    margin: 20px; /* Khoảng cách với header và content */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    display: flex; /* Sắp xếp các nút */
+    flex-wrap: wrap; /* Cho phép nút xuống dòng nếu không đủ chỗ */
+    gap: 10px; /* Khoảng cách giữa các nút */
+    justify-content: center; /* Căn giữa các nút nếu không đủ hàng */
+}
+
+.action-bar button {
+    padding: 10px 18px; /* Tăng padding nút */
+    font-size: 14px; /* Cỡ chữ nút */
+    font-weight: bold;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9; /* Màu nền nút nhẹ */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+.action-bar button:hover {
+    background-color: #e9e9e9;
+    transform: translateY(-1px); /* Hiệu ứng nhấc lên khi hover */
+}
+.action-bar button:active {
+    transform: translateY(0px); /* Hiệu ứng nhấn xuống */
+}
+
+/* Nút đặc biệt của Admin */
+#admin-buttons button { /* Cần đảm bảo ID này đúng trong home.html */
+    background-color: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+#admin-buttons button:hover {
+    background-color: #1e7e34; /* Màu hover đậm hơn */
+}
+#admin-buttons button#dashboard-btn { /* Style riêng cho nút dashboard nếu muốn */
+    background-color: #f9c74f; /* Màu vàng */
+    border-color: #f9c74f;
+    color: #333; /* Chữ đen cho dễ đọc */
+}
+#admin-buttons button#dashboard-btn:hover {
+    background-color: #f7b731;
+}
+
+
+/* --- Info Grid (Lưới hiển thị loại rác) --- */
+main {
+    padding: 0 20px 20px 20px; /* Giảm padding trên cùng của main */
+}
+
+main > h3 { /* Tiêu đề "Thông Tin Phân Loại Cơ Bản" */
+    margin-left: 20px;
+    margin-bottom: 15px;
+    margin-top: 10px; /* Thêm khoảng cách trên */
+    color: #333;
+    font-size: 1.3em;
+    text-align: center;
+}
+
+.info-grid {
+    display: grid;
+    /* Tự động điều chỉnh số cột, mỗi cột tối thiểu 250px */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px; /* Khoảng cách giữa các thẻ */
+    padding: 0 20px; /* Thêm padding cho lưới */
+}
+
+.category-card {
+    padding: 25px; /* Tăng padding trong thẻ */
+    border-radius: 10px; /* Bo tròn góc nhiều hơn */
+    color: white;
+    text-align: center;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: flex; /* Căn chỉnh nội dung bên trong */
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Bắt đầu từ trên xuống */
+    min-height: 200px; /* Đảm bảo chiều cao tối thiểu */
+}
+.category-card:hover {
+    transform: translateY(-8px); /* Nhấc lên nhiều hơn khi hover */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+}
+
+.category-card img {
+    width: 90px; /* Kích thước ảnh */
+    height: 90px;
+    margin-bottom: 15px; /* Khoảng cách dưới ảnh */
+    object-fit: contain;
+}
+
+.category-card h3 {
+    margin: 10px 0 5px 0;
+    text-transform: uppercase;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.category-card p {
+    font-size: 0.9em;
+    line-height: 1.4;
+    flex-grow: 1; /* Cho phép mô tả chiếm không gian còn lại */
+}
