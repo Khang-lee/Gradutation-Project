@@ -1,0 +1,507 @@
+{% extends "base.html" %}
+
+{% block title %}Trang Chủ - Phân Loại Rác{% endblock %}
+
+{% block content %}
+<header class="header">
+    <div id="user-greeting">Xin chào...</div>
+    <button id="logout-button">Đăng xuất</button>
+    <button id="profile-user-button">thông tin cá nhân</button>
+</header>
+
+<main>
+    <div class="action-bar">
+        <input type="file" id="upload-input" accept="image/*" style="display: none;">
+        <button id="upload-btn">⬆ Upload Ảnh</button>
+        <button id="camera-btn">Mở Camera</button>
+        <button id="history-btn">Xem Lịch sử</button>
+
+        <span id="admin-buttons" style="display: none;">
+            <button id="train-btn">train Model</button>
+            <button id="dashboard-btn">quản lý user</button>
+        </span>
+    </div>
+
+    <hr>
+
+    <div id="result-section" style="margin: 20px; padding: 15px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none;">
+        <h3>Kết Quả Phân Loại</h3>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start;">
+            <div style="flex: 1; min-width: 300px; text-align: center;">
+                <h4>Ảnh Đã Xử Lý:</h4>
+                <img id="result-image" src="" alt="Ảnh kết quả" style="max-width: 100%; max-height: 400px; height: auto; border: 1px solid #ccc; border-radius: 5px; margin-top: 10px;">
+            </div>
+            <div style="flex: 1; min-width: 250px;">
+                <h4>Đối Tượng Tìm Thấy:</h4>
+                <ul id="result-list" style="list-style: none; padding: 0; margin-top: 10px;">
+                    </ul>
+            </div>
+        </div>
+        <button id="close-result-btn" style="margin-top: 15px; padding: 8px 15px; cursor:pointer;">Đóng Kết Quả</button>
+    </div>
+
+    <div id="history-section" style="margin: 20px; padding: 15px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none;">
+        <h3>Lịch Sử Phân Loại</h3>
+        <div style="overflow-x: auto;"> <table id="history-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <thead>
+                    <tr>
+                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Tên File Ảnh</th>
+                        <th style = "border: 1px solid #ddd"
+                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Nhãn Dự Đoán</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Độ Tin Cậy</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Gợi ý xử lý</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Thời Gian</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body">
+                    </tbody>
+            </table>
+        </div>
+         <button id="close-history-btn" style="margin-top: 15px; padding: 8px 15px; cursor:pointer;">Đóng Lịch Sử</button>
+    </div>
+
+     <div id="camera-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center;">
+         <div style="background-color: white; padding: 25px; border-radius: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+             <h3 style="margin-top: 0;">Camera</h3>
+             <video id="camera-feed" width="480" height="360" autoplay playsinline style="border: 1px solid #ccc; display: block; margin: 0 auto;"></video>
+             <canvas id="capture-canvas" style="display: none;"></canvas> <div style="margin-top: 20px;">
+                 <button id="capture-btn" style="padding: 10px 20px; font-size: 16px; cursor:pointer;">Chụp Ảnh</button>
+                 <button id="close-camera-modal-btn" style="padding: 10px 15px; margin-left: 10px; cursor:pointer;">Đóng Camera</button>
+             </div>
+             <p id="camera-message" style="color: red; margin-top: 10px; min-height: 1em;"></p>
+         </div>
+     </div>
+
+    <h3>Thông Tin Phân Loại Cơ Bản</h3>
+    <div class="info-grid">
+        <div class="category-card" style="background-color: #0077b6;">
+            <img src="{{ url_for('static', filename='images/plastic.png') }}" alt="Nhựa">
+            <h3>NHỰA</h3>
+            <p>Chai, lọ, túi, hộp nhựa...</p>
+        </div>
+        <div class="category-card" style="background-color: #f9a620;">
+            <img src="{{ url_for('static', filename='images/paper.png') }}" alt="Giấy">
+            <h3>GIẤY</h3>
+            <p>Sách, báo, bìa carton...</p>
+        </div>
+        <div class="category-card" style="background-color: #52b788;">
+            <img src="{{ url_for('static', filename='images/organic.png') }}" alt="Hữu cơ">
+            <h3>HỮU CƠ</h3>
+            <p>Thức ăn thừa, rau củ quả...</p>
+        </div>
+        </div>
+    <p></p>
+    <hr>
+    <h3>connect us: khangleben123@gmail.com</h3>
+
+</main>
+
+<div id="user-info-modal" style="display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center;">
+    <div id="user-info-content" style="background-color: white; padding: 25px 40px; border-radius: 10px; min-width: 300px; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative;">
+        <span id="close-user-info-modal" style="position: absolute; top: 10px; right: 15px; font-size: 25px; font-weight: bold; cursor: pointer; color: #888;">&times;</span>
+        <h3 style="margin-top: 0; text-align: center; color: var(--primary-dark-color);">Thông Tin Tài Khoản</h3>
+        <hr style="margin-bottom: 20px;">
+        <p><strong>ID:</strong> <span id="info-user-id">Đang tải...</span></p>
+        <p><strong>Username:</strong> <span id="info-username">Đang tải...</span></p>
+        <p><strong>Vai trò:</strong> <span id="info-role">Đang tải...</span></p>
+        <p><strong>Ngày đăng ký:</strong> <span id="info-created-at">Đang tải...</span></p>
+        <button id="close-user-info-btn-bottom" style="margin-top: 20px; padding: 8px 15px; display: block; margin-left: auto; margin-right: auto; cursor:pointer;">Đóng</button>
+    </div>
+</div>
+
+<script>
+    // --- LOGIC CHO TRANG HOME ---
+    let currentUser = null; // Biến lưu thông tin user
+
+    // Lấy các element thường dùng
+    const uploadInput = document.getElementById('upload-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const cameraBtn = document.getElementById('camera-btn');
+    const historyBtn = document.getElementById('history-btn');
+    const resultSection = document.getElementById('result-section');
+    const resultImage = document.getElementById('result-image');
+    const resultList = document.getElementById('result-list');
+    const closeResultBtn = document.getElementById('close-result-btn');
+    const historySection = document.getElementById('history-section');
+    const historyTableBody = document.getElementById('history-table-body');
+    const closeHistoryBtn = document.getElementById('close-history-btn');
+    const cameraModal = document.getElementById('camera-modal');
+    const videoFeed = document.getElementById('camera-feed');
+    const captureCanvas = document.getElementById('capture-canvas');
+    const captureBtn = document.getElementById('capture-btn');
+    const closeCameraModalBtn = document.getElementById('close-camera-modal-btn');
+    const cameraMessage = document.getElementById('camera-message');
+    const userInfoButton = document.getElementById('profile-user-button');
+    const userInfoModal = document.getElementById('user-info-modal');
+    const closeUserInfoModalBtnX = document.getElementById('close-user-info-modal');
+    const closeUserInfoModalBtnBottom = document.getElementById('close-user-info-btn-bottom');
+    const infoUserId = document.getElementById('info-user-id');
+    const infoUsername = document.getElementById('info-username');
+    const infoRole = document.getElementById('info-role');
+    const infoCreatedAt = document.getElementById('info-created-at');
+    let stream = null; // Biến lưu luồng camera
+
+    // --- HÀM KHỞI TẠO KHI TRANG TẢI ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const userString = localStorage.getItem('user');
+        if (!userString) {
+            alert('Vui lòng đăng nhập.');
+            window.location.href = '/';
+            return;
+        }
+        currentUser = JSON.parse(userString);
+
+        // Hiển thị thông tin user và nút admin
+        document.getElementById('user-greeting').textContent = `Xin chào ${currentUser.username} (${currentUser.role})`;
+        if (currentUser.role === 'admin') {
+            document.getElementById('admin-buttons').style.display = 'inline';
+        }
+
+        // Gán sự kiện Logout
+        document.getElementById('logout-button').addEventListener('click', logout);
+
+        // Gán sự kiện cho các nút chức năng
+        uploadBtn.addEventListener('click', () => uploadInput.click());
+        uploadInput.addEventListener('change', handleFileUpload);
+        cameraBtn.addEventListener('click', openCamera);
+        historyBtn.addEventListener('click', showHistory);
+        closeResultBtn.addEventListener('click', () => { resultSection.style.display = 'none'; });
+        closeHistoryBtn.addEventListener('click', () => { historySection.style.display = 'none'; });
+        closeCameraModalBtn.addEventListener('click', closeCamera);
+        captureBtn.addEventListener('click', captureAndClassify);
+
+        // Gán sự kiện (tạm thời alert) cho nút admin
+        document.getElementById('train-btn')?.addEventListener('click', () => { alert('Chức năng Train Model!'); });
+        document.getElementById('dashboard-btn')?.addEventListener('click', () => { alert('Chức năng Dashboard!'); });
+    
+        // Gán sự kiện cho modal user info
+        userInfoButton?.addEventListener('click', showUserInfo); // Gán sự kiện mở
+        closeUserInfoModalBtnX?.addEventListener('click', closeUserInfoModal); // Gán sự kiện đóng X
+        closeUserInfoModalBtnBottom?.addEventListener('click', closeUserInfoModal); // Gán sự kiện đóng nút dưới
+        userInfoModal?.addEventListener('click', (event) => { // Gán sự kiện đóng khi click ngoài
+             if (event.target === userInfoModal) {
+                 closeUserInfoModal();
+             }
+        });
+    });
+
+    // --- HÀM XỬ LÝ CÁC CHỨC NĂNG ---
+
+    function logout() {
+        localStorage.removeItem('user');
+        localStorage.removeItem('rememberedUsername'); // Cũng nên xóa username đã nhớ
+        window.location.href = '/';
+    }
+
+    async function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file || !currentUser) return;
+
+        showLoading('Đang xử lý ảnh upload...');
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('user_id', currentUser.id);
+
+        try {
+            const response = await fetch('/api/classify_upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                displayResults(data.annotated_image_url, data.detections);
+            } else {
+                displayError(data.message || 'Lỗi phân loại ảnh.');
+            }
+        } catch (error) {
+            displayError('Lỗi kết nối khi upload ảnh.');
+            console.error('Upload error:', error);
+        } finally {
+            uploadInput.value = ''; // Reset input
+        }
+    }
+
+    async function openCamera() {
+         cameraMessage.textContent = '';
+         if (stream) { // Nếu camera đang mở, đóng lại trước
+             closeCamera();
+         }
+         try {
+             // Yêu cầu truy cập camera, ưu tiên camera sau trên điện thoại
+             const constraints = {
+                 video: {
+                    facingMode: "environment" // Ưu tiên camera sau
+                 }
+             };
+             try {
+                 stream = await navigator.mediaDevices.getUserMedia(constraints);
+             } catch (err) {
+                 console.log("Không tìm thấy camera sau, thử camera trước");
+                 // Nếu không có camera sau, thử lại với camera trước
+                 stream = await navigator.mediaDevices.getUserMedia({ video: true });
+             }
+
+             videoFeed.srcObject = stream;
+             // Đợi video sẵn sàng để lấy kích thước đúng
+             videoFeed.onloadedmetadata = () => {
+                cameraModal.style.display = 'flex';
+             };
+
+         } catch (err) {
+             cameraMessage.textContent = 'Lỗi truy cập camera: ' + err.message;
+             console.error("Lỗi camera: ", err);
+             // Có thể hiển thị thông báo lỗi thân thiện hơn cho người dùng
+             alert(`Không thể truy cập camera. Vui lòng kiểm tra quyền truy cập camera cho trình duyệt.\nLỗi: ${err.message}`);
+         }
+     }
+
+    function closeCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            videoFeed.srcObject = null;
+        }
+        cameraModal.style.display = 'none';
+    }
+
+    async function captureAndClassify() {
+        if (!stream || !currentUser) return;
+        cameraMessage.textContent = 'Đang xử lý ảnh chụp...';
+        captureBtn.disabled = true; // Vô hiệu hóa nút chụp tạm thời
+
+        // Vẽ frame hiện tại lên canvas
+        const context = captureCanvas.getContext('2d');
+        captureCanvas.width = videoFeed.videoWidth;
+        captureCanvas.height = videoFeed.videoHeight;
+        // Lật ảnh nếu cần (thường camera trước bị lật ngược)
+        // context.translate(captureCanvas.width, 0);
+        // context.scale(-1, 1);
+        context.drawImage(videoFeed, 0, 0, captureCanvas.width, captureCanvas.height);
+
+        // Chuyển canvas thành base64
+        const imageDataBase64 = captureCanvas.toDataURL('image/jpeg', 0.9); // Chất lượng 90%
+
+        // Đóng camera modal ngay lập tức
+        closeCamera();
+        showLoading('Đang xử lý ảnh chụp...');
+
+        try {
+            const response = await fetch('/api/classify_capture', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ image_data: imageDataBase64, user_id: currentUser.id })
+            });
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                displayResults(data.annotated_image_url, data.detections);
+            } else {
+                displayError(data.message || 'Lỗi phân loại ảnh chụp.');
+            }
+        } catch (error) {
+            displayError('Lỗi kết nối khi gửi ảnh chụp.');
+            console.error('Capture error:', error);
+        } finally {
+             cameraMessage.textContent = '';
+             captureBtn.disabled = false; // Kích hoạt lại nút chụp
+        }
+    }
+
+    async function showHistory() {
+        if (!currentUser) return;
+        historyTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 10px;">Đang tải lịch sử...</td></tr>';
+        historySection.style.display = 'block';
+        resultSection.style.display = 'none';
+
+        try {
+            const response = await fetch(`/api/history?user_id=${currentUser.id}`);
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                displayHistory(data.history);
+            } else {
+                 historyTableBody.innerHTML = `<tr><td colspan="4" style="color: red; text-align: center; padding: 10px;">${data.message || 'Lỗi tải lịch sử.'}</td></tr>`;
+            }
+        } catch (error) {
+             historyTableBody.innerHTML = `<tr><td colspan="4" style="color: red; text-align: center; padding: 10px;">Lỗi kết nối khi tải lịch sử.</td></tr>`;
+             console.error('History error:', error);
+        }
+    }
+
+    // --- HÀM HỖ TRỢ HIỂN THỊ ---
+    function showLoading(message = 'Đang xử lý...') {
+         resultList.innerHTML = `<li>${message}</li>`;
+         resultImage.src = ""; // Xóa ảnh cũ
+         resultImage.alt = message;
+         resultSection.style.display = 'block'; // Hiển thị khu vực kết quả
+         historySection.style.display = 'none'; // Ẩn lịch sử nếu đang mở
+    }
+
+    function displayResults(imageUrl, detections, timestamp) { // Nhận đủ 3 tham số
+        const resultImage = document.getElementById('result-image');
+        const resultList = document.getElementById('result-list');
+        const resultSection = document.getElementById('result-section'); // Lấy cả khu vực kết quả
+
+        resultImage.src = imageUrl || ''; // Hiển thị ảnh (gốc)
+        resultImage.alt = imageUrl ? 'Ảnh kết quả phân loại' : 'Không có ảnh kết quả';
+        resultList.innerHTML = ''; // Xóa kết quả cũ/loading
+
+        if (detections && detections.length > 0) {
+            // Lấy thời gian từ tham số API hoặc dùng thời gian hiện tại làm dự phòng
+            const displayTime = timestamp || new Date().toLocaleString('vi-VN');
+
+            detections.forEach(det => {
+                const confidenceValue = typeof det.confidence === 'number' ? det.confidence : 0;
+                const confidencePercent = (confidenceValue * 100).toFixed(1);
+
+                // Tạo list item chứa toàn bộ thông tin cho một detection
+                const listItem = document.createElement('li');
+                listItem.style.marginBottom = '15px';
+                listItem.style.paddingBottom = '10px';
+                listItem.style.borderBottom = '1px solid #eee'; // Ngăn cách các kết quả
+
+                // 1. Hiển thị Nhãn và Confidence
+                const labelConfidence = document.createElement('div');
+                labelConfidence.innerHTML = `<strong>${det.label || 'N/A'}</strong> (${confidencePercent}%)`;
+                listItem.appendChild(labelConfidence);
+
+                // 2. Hiển thị Gợi ý xử lý (lấy từ det.handling_suggestion)
+                const suggestion = document.createElement('div');
+                suggestion.style.fontSize = '0.9em';
+                suggestion.style.color = '#555';
+                suggestion.style.marginTop = '5px';
+                suggestion.textContent = `Gợi ý: ${det.handling_suggestion || 'Không có'}`; // Lấy gợi ý từ API
+                listItem.appendChild(suggestion);
+
+                // 3. Hiển thị Thời gian
+                const timeInfo = document.createElement('div');
+                timeInfo.style.fontSize = '0.8em';
+                timeInfo.style.color = '#888';
+                timeInfo.style.marginTop = '5px';
+                timeInfo.textContent = `Thời gian: ${displayTime}`; // Sử dụng timestamp từ API
+                listItem.appendChild(timeInfo);
+
+                // Thêm list item hoàn chỉnh vào danh sách
+                resultList.appendChild(listItem);
+            });
+        } else {
+            // Thông báo nếu không có detection nào
+            resultList.innerHTML = '<li>Không phát hiện đối tượng nào.</li>';
+        }
+        
+        // Đảm bảo khu vực kết quả được hiển thị
+        if (resultSection) {
+            resultSection.style.display = 'block';
+        }
+    }
+
+    function displayHistory(historyData) {
+        const tableBody = document.getElementById('history-section');
+        historyTableBody.innerHTML = ''; // Xóa nội dung cũ (loading)
+
+        if (historyData && historyData.length > 0) {
+            historyData.forEach(record => {
+                const row = tableBody.insertRow();
+
+                const thumbCell = row.insertCell();
+                const thumbImg = document.createElement('img');
+                // Dùng file_name (đã được tạo ở backend) để tạo URL
+                thumbImg.src = record.file_name ? `/uploads/${record.file_name}` : ''; // Lấy ảnh từ route /uploads
+                thumbImg.alt = 'Ảnh lịch sử';
+                thumbImg.style.width = '60px'; // Kích thước thumbnail
+                thumbImg.style.height = '60px';
+                thumbImg.style.objectFit = 'cover'; // Đảm bảo ảnh không méo
+                thumbImg.style.borderRadius = '4px'; // Bo góc nhẹ
+                // Thêm xử lý lỗi nếu ảnh không tải được (tùy chọn)
+                thumbImg.onerror = () => { thumbCell.textContent = 'Lỗi ảnh'; };
+                 if (record.file_name && record.file_name !== 'N/A') { // Chỉ thêm ảnh nếu có tên file
+                 thumbCell.appendChild(thumbImg);
+            } else {
+                 thumbCell.textContent = 'N/A';
+            }
+
+
+            // --- Cột 2: Tên File Ảnh ---
+            const nameCell = row.insertCell();
+            // Dùng file_name đã được xử lý ở backend
+            nameCell.textContent = record.file_name || 'N/A';
+
+
+            // --- Cột 3: Nhãn Dự Đoán ---
+            // Dùng key detected_label từ kết quả JOIN
+            row.insertCell().textContent = record.detected_label || 'N/A';
+
+            // --- Cột 4: Độ Tin Cậy ---
+            // Dùng key confidence (đã được đổi tên ở backend nếu cần)
+            const confidenceValue = typeof record.confidence === 'number' ? record.confidence : 0;
+            row.insertCell().textContent = (confidenceValue * 100).toFixed(1) + '%';
+
+            // --- Cột 5: Gợi ý Xử Lý ---
+            const suggestionCell = row.insertCell();
+            // Dùng key handling_suggestion từ kết quả JOIN
+            suggestionCell.textContent = record.handling_suggestion || 'N/A';
+            suggestionCell.style.whiteSpace = 'pre-wrap'; // Cho phép xuống dòng
+            suggestionCell.style.minWidth = '200px'; // Đặt chiều rộng tối thiểu
+
+            // --- Cột 6: Thời Gian ---
+            // Dùng key detection_time_str đã được định dạng ở backend
+            row.insertCell().textContent = record.detection_time_str || 'N/A';
+
+            // --- Thêm style cho các ô ---
+            Array.from(row.cells).forEach(cell => {
+                cell.style.border = '1px solid #ddd';
+                cell.style.padding = '8px';
+                cell.style.verticalAlign = 'middle'; // Căn giữa dọc
+                cell.style.fontSize = '0.9em';
+            });
+        });
+    } else {
+        // Thông báo nếu không có lịch sử (cần 6 cột)
+        historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 10px;">Chưa có lịch sử phân loại.</td></tr>'; // Sửa colspan="6"
+    }
+    historySection.style.display = 'block'; // Hiển thị khu vực lịch sử
+}
+
+     function displayError(message) {
+         resultList.innerHTML = `<li style="color: red;">Lỗi: ${message}</li>`;
+         resultImage.src = "";
+         resultImage.alt = "Lỗi";
+         resultSection.style.display = 'block';
+     }
+
+    // --- HÀM XỬ LÝ MODAL USER INFO ---
+    function showUserInfo() {
+        if (currentUser && userInfoModal) {
+            // Điền thông tin
+            infoUserId.textContent = currentUser.id || 'N/A';
+            infoUsername.textContent = currentUser.username || 'N/A';
+            infoRole.textContent = currentUser.role || 'N/A';
+
+            // Định dạng ngày đăng ký (cần có 'created_at' trong currentUser)
+            let createdAtDisplay = 'N/A';
+            if (currentUser.created_at) {
+                try {
+                    const date = new Date(currentUser.created_at);
+                    // Định dạng theo dd/mm/yyyy hh:mm:ss
+                    createdAtDisplay = date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN');
+                } catch (e) {
+                    createdAtDisplay = currentUser.created_at; // Hiển thị gốc nếu lỗi
+                    console.error("Lỗi định dạng ngày:", e);
+                }
+            }
+            infoCreatedAt.textContent = createdAtDisplay;
+
+            // Hiển thị modal
+            userInfoModal.style.display = 'flex';
+        } else {
+            alert('Không thể hiển thị thông tin người dùng.');
+            console.error("currentUser:", currentUser);
+            console.error("userInfoModal:", userInfoModal);
+        }
+    }
+
+    function closeUserInfoModal() {
+        if (userInfoModal) {
+            userInfoModal.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,7 +1,5 @@
-
-ultralytics>=8.0.0
-opencv-python
+Flask
+mysql-connector-python
+Werkzeug
 Pillow
-tensorflow==2.12.0
-keras==2.12.0
-numpy
+customtkinter

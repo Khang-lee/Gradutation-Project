@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block title %}Đăng Nhập / Đăng Ký - Hệ Thống Phân Loại Rác{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="left-panel">'
+        <div class="info-box" id="baovemoitruong-box" data-target="modal-baovemoitruong">
+            <img src="{{ url_for('static', filename='images/infobox/baovemoitruong-infobox.png') }}" alt="Icon Môi trường">
+            <h3>Bảo vệ môi trường</h3>
+        </div>
+        <div class="info-box" id="phanloairac-box" data-target="modal-phanloairac">
+            <img src="{{ url_for('static', filename='images/infobox/phanloairac-infobox.png')}}" alt="Icon Phân loại rác">
+            <h3>Phân loại rác</h3>
+        </div>
+        <div class="info-box" id="nangcaoythuc-box" data-target="modal-nangcaoythuc">
+            <img src="{{url_for('static', filename='images/infobox/nangcaoythuc-infobox.png')}}" alt="Icon Nâng cao ý thức">
+            <h3>Nâng cao ý thức</h3>
+        </div>
+    </div> <div class="right-panel">
+        <div class="form-frame">
+            <div class="tab-container">
+                <button class="tab active" data-form="login">Đăng Nhập</button>
+                <button class="tab" data-form="register">Đăng Ký</button>
+            </div>
+
+            <div id="login-form-container" class="form-content active">
+                <form id="login-form">
+                    <input type="text" id="login-username" placeholder="Tên đăng nhập" required autocomplete="username">
+                    <input type="password" id="login-password" placeholder="Mật khẩu" required autocomplete="current-password">
+
+                    <div class="remember-me-container">
+                        <input type="checkbox" id="remember-me"> <label for="remember-me">Ghi nhớ tên đăng nhập</label> </div>
+                    <p></p>
+                    <button type="submit" class="btn-primary">Đăng nhập</button>
+                    <p id="login-message" style="color: red; text-align: center; margin-top: 15px; min-height: 1em;"></p>
+                    <hr>
+                    <div class="social-login-divider">Hoặc đăng nhập bằng</div>
+                    <div class="social-login-buttons">
+                        <button type="button" class="btn-facebook">Facebook</button>
+                        <button type="button" class="btn-X">Twitter</button>
+                        <button type="button" class="btn-whatapps">whatapps</button>
+                        <button type="button" class="btn-gg">google</button>
+                    </div>
+                    </form>
+            </div>
+
+            <div id="register-form-container" class="form-content">
+                <form id="register-form">
+                    <input type="text" id="register-username" placeholder="Chọn tên đăng nhập" required autocomplete="off"> <input type="password" id="register-password" placeholder="Chọn mật khẩu" required autocomplete="new-password">
+                    <button type="submit" class="btn-primary">Tạo tài khoản</button>
+                    <p></p>
+                    <hr>
+                    <div class="social-login-divider">Hoặc đăng kí bằng</div>
+                    <div class="social-login-buttons">
+                        <button type="button" class="btn-facebook">Facebook</button>
+                        <button type="button" class="btn-X">Twitter</button>
+                        <button type="button" class="btn-whatapps">whatapps</button>
+                        <button type="button" class="btn-gg">google</button>
+                    <p id="register-message" style="text-align: center; margin-top: 15px; min-height: 1em;"></p> </form>
+            </div>
+        </div> </div> </div> <div id="info-modals-container">
+    <div class="info-modal" id="modal-baovemoitruong">
+        <div class="modal-content">
+             <span class="close-modal">&times;</span>
+             <img src="{{ url_for('static', filename='images/infobox/baovemoitruong-infobox.png') }}" alt="Bảo vệ môi trường">
+             <h2>Bảo Vệ Môi Trường</h2>
+             <p>Chung tay hành động vì một hành tinh xanh, giảm thiểu rác thải nhựa, tiết kiệm năng lượng và bảo tồn đa dạng sinh học.</p>
+        </div>
+    </div>
+    <div class="info-modal" id="modal-phanloairac">
+         <div class="modal-content">
+              <span class="close-modal">&times;</span>
+              <img src="{{ url_for('static', filename='images/infobox/phanloairac-infobox.png') }}" alt="Phân loại rác">
+              <h2>Phân Loại Rác Tại Nguồn</h2>
+              <p>Phân loại rác đúng cách giúp tối ưu hóa quá trình tái chế, giảm gánh nặng cho môi trường và biến rác thành tài nguyên có ích.</p>
+         </div>
+    </div>
+    <div class="info-modal" id="modal-nangcaoythuc">
+         <div class="modal-content">
+              <span class="close-modal">&times;</span>
+              <img src="{{ url_for('static', filename='images/infobox/nangcaoythuc-infobox.png') }}" alt="Nâng cao ý thức">
+              <h2>Nâng Cao Ý Thức Cộng Đồng</h2>
+              <p>Mỗi hành động nhỏ của bạn đều góp phần tạo nên thay đổi lớn. Hãy lan tỏa thông điệp về bảo vệ môi trường đến mọi người xung quanh.</p>
+         </div>
+    </div>
+</div> <script>
+    // --- 1. LOGIC ĐIỀU KHIỂN CÁC TAB ---
+    const tabs = document.querySelectorAll('.tab');
+    const formContents = document.querySelectorAll('.form-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(item => item.classList.remove('active'));
+            formContents.forEach(item => item.classList.remove('active'));
+
+            const formId = tab.getAttribute('data-form');
+            tab.classList.add('active');
+            document.getElementById(`${formId}-form-container`).classList.add('active');
+        });
+    });
+
+    // --- 2. LOGIC GỬI YÊU CẦU ĐĂNG NHẬP VÀ REMEMBER ME ---
+    const loginForm = document.getElementById('login-form'); // Lấy form đăng nhập
+    const rememberMeCheckbox = document.getElementById('remember-me'); // Lấy checkbox
+    const usernameInput = document.getElementById('login-username');  // Lấy ô username
+    const loginMessageEl = document.getElementById('login-message'); // Lấy dòng thông báo
+
+    // Điền username đã nhớ khi tải trang
+    document.addEventListener('DOMContentLoaded', () => {
+        const rememberedUsername = localStorage.getItem('rememberedUsername');
+        if (rememberedUsername) {
+            usernameInput.value = rememberedUsername;
+            rememberMeCheckbox.checked = true;
+        }
+    });
+
+    // Xử lý khi submit form đăng nhập
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const username = usernameInput.value;
+        const password = document.getElementById('login-password').value;
+        loginMessageEl.textContent = ''; // Xóa thông báo cũ
+
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                // Xử lý Remember Me
+                if (rememberMeCheckbox.checked) {
+                    localStorage.setItem('rememberedUsername', username);
+                } else {
+                    localStorage.removeItem('rememberedUsername');
+                }
+                // Lưu user và chuyển hướng
+                localStorage.setItem('user', JSON.stringify(data.user));
+                window.location.href = '/home';
+            } else {
+                loginMessageEl.textContent = data.message || 'Đã xảy ra lỗi.';
+            }
+        } catch (error) {
+            loginMessageEl.textContent = 'Lỗi kết nối đến server.';
+            console.error('Login error:', error);
+        }
+    });
+
+    // --- 3. LOGIC GỬI YÊU CẦU ĐĂNG KÝ ---
+    const registerForm = document.getElementById('register-form'); // Lấy form đăng ký
+    const registerMessageEl = document.getElementById('register-message'); // Lấy dòng thông báo
+
+    registerForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const username = document.getElementById('register-username').value;
+        const password = document.getElementById('register-password').value;
+        registerMessageEl.textContent = ''; // Xóa thông báo cũ
+        registerMessageEl.style.color = 'red'; // Mặc định màu đỏ
+
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            if (response.ok && data.status === 'success') {
+                registerMessageEl.style.color = 'green';
+                registerMessageEl.textContent = `Đăng ký thành công! Chào mừng ${username}. Bạn có thể chuyển qua tab Đăng Nhập.`;
+            } else {
+                registerMessageEl.textContent = data.message || 'Đã xảy ra lỗi.';
+            }
+        } catch (error) {
+            registerMessageEl.textContent = 'Lỗi kết nối đến server.';
+            console.error('Register error:', error);
+        }
+    });
+
+    // --- 4. LOGIC ĐIỀU KHIỂN CÁC POP-UP MODAL (Sửa lỗi chính tả) ---
+    const infoBoxes = document.querySelectorAll('.info-box'); // Nhất quán tên biến
+    const infoModalsContainer = document.getElementById('info-modals-container'); // Container của modals
+    const infoModals = document.querySelectorAll('.info-modal');       // Nhất quán tên biến
+    const closeButtons = document.querySelectorAll('.close-modal');    // Nhất quán tên biến VÀ sửa selector
+
+    // Open modal on info-box click
+    infoBoxes.forEach(box => { // Dùng tên biến đã khai báo
+        box.addEventListener('click', () => {
+            const targetModalId = box.dataset.target;
+            const targetModal = document.getElementById(targetModalId);
+            if (targetModal) {
+                targetModal.style.display = 'flex'; // Use flex to center content
+            } else {
+                console.error(`Không tìm thấy modal với ID: ${targetModalId}`);
+            }
+        });
+    });
+
+    // Close modal on close button (X) click
+    closeButtons.forEach(button => { // Dùng tên biến đã khai báo
+        button.addEventListener('click', () => {
+            const modal = button.closest('.info-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+
+    // Close modal when clicking outside the modal content
+    window.addEventListener('click', (event) => {
+        infoModals.forEach(modal => { // Dùng tên biến đã khai báo
+            if (event.target === modal) { // Check if the click is directly on the modal background
+                modal.style.display = 'none';
+            }
+        });
+    });
+
+</script>
+{% endblock %}
