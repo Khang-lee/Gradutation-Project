@@ -45,8 +45,8 @@
         <div style="overflow-x: auto;"> <table id="history-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
                 <thead>
                     <tr>
+                        <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Ảnh</th>
                         <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Tên File Ảnh</th>
-                        <th style = "border: 1px solid #ddd"
                         <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Nhãn Dự Đoán</th>
                         <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Độ Tin Cậy</th>
                         <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Gợi ý xử lý</th>
@@ -394,7 +394,7 @@
     }
 
     function displayHistory(historyData) {
-        const tableBody = document.getElementById('history-section');
+        const tableBody = document.getElementById('history-table-body');
         historyTableBody.innerHTML = ''; // Xóa nội dung cũ (loading)
 
         if (historyData && historyData.length > 0) {
@@ -455,7 +455,7 @@
         });
     } else {
         // Thông báo nếu không có lịch sử (cần 6 cột)
-        historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 10px;">Chưa có lịch sử phân loại.</td></tr>'; // Sửa colspan="6"
+        historyTableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 10px;">Chưa có lịch sử phân loại.</td></tr>'; // Sửa colspan="6"
     }
     historySection.style.display = 'block'; // Hiển thị khu vực lịch sử
 }

@@ -41,6 +41,10 @@ def api_login():
 #kiểm tra thông tin đăng nhập
     if not username or not password:
         return jsonify({'status': 'error', 'message': 'Thiếu username hoặc password đăng nhập'}), 400
+    if not db_handler.check_db_connection():
+# kiểm tra không kết nối được CSDL, báo lỗi server ngay
+        print("Lỗi API Login: Không thể kết nối CSDL.")
+        return jsonify({'status': 'error', 'message': 'không thể kết nối với server!'}), 500 # Mã lỗi 500
 #gọi hàm authenticate_user từ db_handler xác thực
     user_data = db_handler.authenticate_user(username, password)
     if user_data:
@@ -89,7 +93,6 @@ def api_classify_upload():
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        # Tạo tên file duy nhất để tránh trùng lặp
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         unique_filename = f"{timestamp}_{filename}"
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
@@ -101,44 +104,58 @@ def api_classify_upload():
             cmd = [sys.executable, predict_script_path, "--file_path", file_path]
             proc = subprocess.run(cmd, capture_output=True, text=True, check=True, cwd=os.path.dirname(__file__))
             result = json.loads(proc.stdout)
-            detections = result.get("detections", [])
+            detections_from_model = result.get("detections", []) # Lấy kết quả gốc từ model
+            annotated_file_path = result.get("annotated_file_path", file_path) # Dùng ảnh gốc
 
-            # --- Lưu vào CSDL và lấy suggestion---
-            image_id = db_handler.add_image(file_path, user_id) # Lưu ảnh gốc
-            processed_detections=[]
-            if image_id and detections:
-                for detection in detections:
+            processed_detections = [] # Tạo list mới để chứa kết quả đầy đủ
+
+            # --- Lưu vào CSDL và lấy Suggestion ---
+            if detections_from_model:
+                for detection in detections_from_model:
                     label_name = detection.get('label')
-                    confidence = detection.get('confidence') # Giả sử script trả về confidence
-                    print(f"DEBUG: Nhãn nhận được từ model: '{label_name}' (Kiểu: {type(label_name)})")
-                    label_info = db_handler.get_label_by_name(label_name)
-                    if label_info:
-                        db_handler.add_classification_result(image_id, label_info['id'], confidence)
-                        detection['handling_suggestion'] = label_info.get('handling_suggestion', 'chưa có gợi ý.')
+                    confidence = detection.get('confidence')
+
+                    # === GỌI HÀM LƯU LỊCH SỬ ===
+                    # Bỏ gọi db_handler.add_image()
+                    # Gọi hàm lưu kết quả với các tham số đúng
+                    db_handler.add_classification_result(
+                        user_id=user_id,
+                        file_path=file_path,        # Đường dẫn ảnh gốc đã lưu
+                        detected_label=label_name,  # Tên nhãn dự đoán
+                        model_confidence=confidence # Độ tin cậy
+                    )
+                    # ============================
+
+                    # Vẫn lấy suggestion từ bảng labels để trả về frontend
+                    label_info_for_suggestion = db_handler.get_label_by_name(label_name)
+                    if label_info_for_suggestion:
+                        detection['handling_suggestion'] = label_info_for_suggestion.get('handling_suggestion', 'Chưa có gợi ý.')
                     else:
-                        detection['handling_suggestion'] = f"Nhãn {label_name} chưa có trong csdl"
-                    processed_detections.append(detection)
+                        detection['handling_suggestion'] = f"Nhãn '{label_name}' chưa có trong CSDL."
+
+                    processed_detections.append(detection) # Thêm detection đã xử lý vào list
+
             # Trả kết quả về cho frontend
-            # Chuyển đổi đường dẫn ảnh kết quả thành URL có thể truy cập
             original_filename = os.path.basename(file_path)
             image_url_to_display = f"/uploads/{original_filename}"
+
             return jsonify({
                 'status': 'success',
-                'original_image_path': file_path, # Có thể không cần gửi về
                 'annotated_image_url': image_url_to_display,
-                'detections': processed_detections
+                'detections': processed_detections, # Trả về list đã xử lý
+                'timestamp': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') # Thêm timestamp
             })
 
         except subprocess.CalledProcessError as e:
             print(f"Lỗi khi chạy script phân loại: {e.stderr}")
             return jsonify({'status': 'error', 'message': f'Lỗi server khi phân loại: {e.stderr}'}), 500
         except Exception as e:
-            print(f"Lỗi không xác định: {e}")
+            print(f"Lỗi không xác định (upload): {e}")
             return jsonify({'status': 'error', 'message': f'Lỗi server không xác định: {str(e)}'}), 500
     else:
         return jsonify({'status': 'error', 'message': 'Loại file không hợp lệ'}), 400
 
-#xử lý ảnh chụp từ camera (dạng base64)
+
 @app.route('/api/classify_capture', methods=['POST'])
 def api_classify_capture():
     data = request.get_json()
@@ -149,65 +166,83 @@ def api_classify_capture():
         return jsonify({'status': 'error', 'message': 'Thiếu dữ liệu ảnh hoặc User ID'}), 400
 
     try:
-        # Loại bỏ phần đầu "data:image/jpeg;base64," (hoặc png)
         header, encoded = image_data_base64.split(",", 1)
         image_data = base64.b64decode(encoded)
 
-        # Lưu ảnh vào file tạm
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        filename = f"capture_{timestamp}.jpg" # Mặc định là jpg
+        filename = f"capture_{timestamp}.jpg"
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         with open(file_path, "wb") as fh:
             fh.write(image_data)
 
-        # --- Gọi script phân loại (giống như upload) ---
+        # --- Gọi script phân loại ---
         predict_script_path = os.path.join(os.path.dirname(__file__), "trash_detection.py")
         cmd = [sys.executable, predict_script_path, "--file_path", file_path]
         proc = subprocess.run(cmd, capture_output=True, text=True, check=True, cwd=os.path.dirname(__file__))
         result = json.loads(proc.stdout)
-        detections = result.get("detections", [])
+        detections_from_model = result.get("detections", [])
+        annotated_file_path = result.get("annotated_file_path", file_path)
 
-        # --- Lưu vào CSDL (giống như upload) ---
-        image_id = db_handler.add_image(file_path, user_id)
-        if image_id and detections:
-             for detection in detections:
-                 # ... (lưu kết quả tương tự như upload) ...
-                 label_name = detection.get('label')
-                 confidence = detection.get('confidence')
-                 label_info = db_handler.get_label_by_name(label_name)
-                 if label_info:
-                     db_handler.add_classification_result(image_id, label_info['id'], confidence)
+        processed_detections = []
 
-        annotated_filename = os.path.basename(result.get("annotated_file_path", ""))
-        annotated_image_url = f"/uploads/{annotated_filename}" if annotated_filename else None
+        # --- Lưu vào CSDL và lấy Suggestion ---
+        if detections_from_model:
+            for detection in detections_from_model:
+                label_name = detection.get('label')
+                confidence = detection.get('confidence')
+
+                # === GỌI HÀM LƯU LỊCH SỬ ===
+                db_handler.add_classification_result(
+                    user_id=user_id,
+                    file_path=file_path,
+                    detected_label=label_name,
+                    model_confidence=confidence
+                )
+                # ============================
+
+                # Vẫn lấy suggestion từ bảng labels
+                label_info_for_suggestion = db_handler.get_label_by_name(label_name)
+                if label_info_for_suggestion:
+                    detection['handling_suggestion'] = label_info_for_suggestion.get('handling_suggestion', 'Chưa có gợi ý.')
+                else:
+                    detection['handling_suggestion'] = f"Nhãn '{label_name}' chưa có trong CSDL."
+
+                processed_detections.append(detection)
+
+        original_filename = os.path.basename(file_path)
+        image_url_to_display = f"/uploads/{original_filename}"
 
         return jsonify({
             'status': 'success',
-            'annotated_image_url': annotated_image_url,
-            'detections': detections
+            'annotated_image_url': image_url_to_display,
+            'detections': processed_detections,
+            'timestamp': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') # Thêm timestamp
         })
 
     except subprocess.CalledProcessError as e:
+        print(f"Lỗi khi chạy script phân loại (capture): {e.stderr}")
         return jsonify({'status': 'error', 'message': f'Lỗi server khi phân loại: {e.stderr}'}), 500
     except Exception as e:
+        print(f"Lỗi không xác định (capture): {e}")
         return jsonify({'status': 'error', 'message': f'Lỗi xử lý ảnh chụp: {str(e)}'}), 500
 
-
-# --- API MỚI: Lấy lịch sử phân loại ---
+#Lấy lịch sử phân loại
 @app.route('/api/history', methods=['GET'])
 def api_get_history():
-    user_id = request.args.get('user_id') # Lấy user_id từ query param
+    user_id = request.args.get('user_id') # Lấy user_id từ URL
     if not user_id:
         return jsonify({'status': 'error', 'message': 'Thiếu User ID'}), 400
 
-    history = db_handler.get_history_details(user_id)
+    # Gọi hàm xử lý trong db_handler
+    history = db_handler.get_history_details(user_id) # << GỌI HÀM LẤY DATA
 
     if history is not None:
+        # Trả về dữ liệu lịch sử nếu thành công
         return jsonify({'status': 'success', 'history': history})
     else:
+        # Trả về lỗi nếu db_handler gặp sự cố
         return jsonify({'status': 'error', 'message': 'Không thể lấy lịch sử phân loại.'}), 500
 
-# --- Route để phục vụ file ảnh đã xử lý ---
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     """Phục vụ file ảnh gốc từ thư mục uploads."""
