@@ -47,18 +47,19 @@
 
             <div id="register-form-container" class="form-content">
                 <form id="register-form">
-                    <input type="text" id="register-username" placeholder="Chọn tên đăng nhập" required autocomplete="off"> <input type="password" id="register-password" placeholder="Chọn mật khẩu" required autocomplete="new-password">
+                    <input type="text" id="register-username" placeholder="nhập tên đăng kí" required autocomplete="off">
+                    <input type="password" id="register-password" placeholder="nhập mật khẩu" required autocomplete="new-password">
                     <button type="submit" class="btn-primary">Tạo tài khoản</button>
                     <p></p>
                     <hr>
                     <div class="social-login-divider">Hoặc đăng kí bằng</div>
+                    <p id="register-message" style="text-align: center; margin-top: 15px; min-height: 1em;"></p>
                     <div class="social-login-buttons">
                         <button type="button" class="btn-facebook">Facebook</button>
                         <button type="button" class="btn-X">Twitter</button>
                         <button type="button" class="btn-whatapps">whatapps</button>
                         <button type="button" class="btn-gg">google</button>
-                    <p id="register-message" style="text-align: center; margin-top: 15px; min-height: 1em;"></p> </form>
-            </div>
+                    </div>
         </div> </div> </div> <div id="info-modals-container">
     <div class="info-modal" id="modal-baovemoitruong">
         <div class="modal-content">
@@ -214,6 +215,17 @@
             if (event.target === modal) { // Check if the click is directly on the modal background
                 modal.style.display = 'none';
             }
+        });
+    });
+
+    // --- THÊM LOGIC CHO CÁC NÚT SOCIAL LOGIN ---
+    const socialButtons = document.querySelectorAll('.social-login-buttons button');
+
+    // Gán sự kiện click cho từng nút
+    socialButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault(); // Ngăn hành động mặc định (nếu có)
+            alert('Tính năng chưa cập nhật'); // Hiển thị thông báo
         });
     });
 

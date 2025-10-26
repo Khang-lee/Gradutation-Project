@@ -2,6 +2,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import datetime
+import os
 
 db_config = {
     'host': 'localhost',
@@ -119,168 +120,111 @@ def get_label_by_name(label_name):
             conn.close()
 
 
-def add_image(image_path, user_id):
-    """Lưu thông tin ảnh vào CSDL và trả về ID ảnh mới."""
-    conn = get_db_connection()
-    if not conn: return None
-    try:
-        cursor = conn.cursor()
-        sql = "INSERT INTO images (user_id, file_path) VALUES (%s, %s)"
-        cursor.execute(sql, (user_id, image_path))
-        conn.commit()
-        image_id = cursor.lastrowid # Lấy ID của dòng vừa chèn
-        print(f"Đã lưu ảnh vào DB, ID: {image_id}")
-        return image_id
-    except mysql.connector.Error as err:
-        print(f"Lỗi lưu ảnh vào CSDL: {err}")
-        return None
-    finally:
-        if conn and conn.is_connected():
-            cursor.close()
-            conn.close()
-
-def add_classification_result(image_id, label_id, confidence):
-    """Lưu kết quả phân loại vào CSDL (bảng classification_history)."""
+def add_classification_result(user_id, file_path, detected_label, model_confidence):
+    """
+    Lưu kết quả phân loại (bao gồm user_id, file_path, label, confidence)
+    trực tiếp vào bảng classification_history.
+    """
     conn = get_db_connection()
     if not conn:
         print("Lỗi: Không thể kết nối CSDL để lưu kết quả.")
         return False
-    cursor = None # Khởi tạo cursor
-    try:
-        cursor = conn.cursor()
-        # Đảm bảo tên bảng và tên cột khớp với CSDL của bạn
-        # Dựa trên ảnh CSDL bạn gửi, bảng là classification_history, cột confidence là model_confidence
-        sql = "INSERT INTO classification_history (image_id, label_id, model_confidence) VALUES (%s, %s, %s)"
-        cursor.execute(sql, (image_id, label_id, confidence))
-        conn.commit()
-        print(f"Đã lưu kết quả phân loại cho image_id {image_id} vào DB.")
-        return True
-    except mysql.connector.Error as err:
-        print(f"Lỗi lưu kết quả phân loại: {err}")
-        return False
-    finally:
-        if cursor: # Đảm bảo cursor tồn tại
-            cursor.close()
-        if conn and conn.is_connected():
-            conn.close()
-            
-def get_history_details(user_id):
-    conn = get_db_connection()
-    if not conn:
-        print("không thể lấy dữ liệu từ những bảng khác!")
-        return None
-    history = []
     cursor = None
     try:
-        sql = """
-            SELECT
-                r.id AS result_id,          -- ID của bản ghi lịch sử
-                r.user_id,                  -- ID người dùng
-                i.file_path,                -- Đường dẫn file ảnh từ bảng images
-                r.detected_label,           -- Nhãn dự đoán từ bảng history
-                r.model_confidence,         -- Độ tin cậy từ bảng history
-                r.detection_time,           -- Thời gian từ bảng history
-                l.name AS actual_label_name,-- Tên nhãn chuẩn từ bảng labels
-            FROM
-                classification_history r    -- Bảng lịch sử (chính)
-            INNER JOIN                          -- Nên dùng INNER JOIN để chỉ lấy kết quả có ảnh tương ứng
-                images i ON r.image_id = i.id -- JOIN với bảng images dựa trên image_id
-            LEFT JOIN                           -- Dùng LEFT JOIN để vẫn lấy kết quả nếu nhãn không có trong bảng labels
-                labels l ON LOWER(r.detected_label) = LOWER(l.name) -- JOIN với bảng labels dựa trên tên nhãn
-            WHERE
-                r.user_id = %s              -- Lọc theo user_id (từ bảng history)
-            ORDER BY
-                r.detection_time DESC       -- Sắp xếp mới nhất trước
-        """
-        cursor.execute(sql, (user_id,))
-        history = cursor.fetchall()
+        cursor = conn.cursor()
         
-        #hàm xử lý kết quả
-        for record in history:
-            if'file_path' in record and record['file_path']:
-                record['file_name'] = os.path.basename(record['file_path'])
-            else:
-                record['file_name'] = 'N/A'
-            if 'detection_time' in record and isinstance(record['detection_time'], datetime.datetime):
-                record['detection_time_str'] = record['detection_time'].strftime('%Y-%m-%d %H:%M:%S')
-            elif 'detection_time' in record:
-                record['detection_time_str'] = str(record['detection_time'])
-            else:
-                record['detection_time_str'] = 'N/A'
+        # Câu lệnh INSERT khớp với cấu trúc bảng mới của bạn
+        # (user_id, label_name, confidence, file_path, uploaded_at)
+        sql = """
+            INSERT INTO classification_history
+            (user_id, file_path, label_name, confidence, uploaded_at)
+            VALUES (%s, %s, %s, %s, NOW()) 
+        """
+        # Lưu ý: Đảm bảo tên cột trong CSDL là 'label_name' và 'confidence'
+        
+        try:
+            confidence_float = float(model_confidence)
+        except (ValueError, TypeError):
+            confidence_float = 0.0
 
-            if 'model_confidence' in record:
-                record['confidence'] = record['model_confidence'] # Tạo key 'confidence' cho tiện
-
-            if 'handling_suggestion' not in record or record['handling_suggestion'] is None:
-                record['handling_suggestion'] = 'Chưa có gợi ý.' # Giá trị mặc định
-        return history
+        # Thực thi INSERT với các giá trị
+        cursor.execute(sql, (user_id, file_path, detected_label, confidence_float))
+        conn.commit() # Lưu thay đổi
+        print(f"Đã lưu kết quả (Nhãn: {detected_label}) vào bảng classification_history.")
+        return True # Trả về True nếu thành công
 
     except mysql.connector.Error as err:
-        print(f"Lỗi lấy chi tiết lịch sử phân loại: {err}")
-        # print(f"SQL Query Error: {sql}") # Bỏ comment để debug SQL nếu cần
-        return None
+        print(f"Lỗi lưu kết quả phân loại vào DB: {err}")
+        return False # Trả về False nếu có lỗi
     finally:
         if cursor:
             cursor.close()
         if conn and conn.is_connected():
             conn.close()
 
-
-def get_classification_history(user_id):
-    """Lấy lịch sử phân loại của một user, bao gồm gợi ý xử lý"""
+def get_history_details(user_id):
+    """Lấy chi tiết lịch sử phân loại bằng cách JOIN các bảng."""
     conn = get_db_connection()
-    if not conn: 
-        print("lỗi: không thể kết nói csdl để lấy dữ lịch sử")
+    if not conn:
+        print("Lỗi: Không thể kết nối CSDL để lấy lịch sử.")
         return None
     history = []
     cursor = None
     try:
         cursor = conn.cursor(dictionary=True)
-        # Nối các bảng để lấy thông tin đầy đủ
+        # Câu lệnh SQL JOIN các bảng
         sql = """
             SELECT
-                r.id,
+                r.id AS result_id,
                 r.user_id,
                 r.file_path,
-                r.detected_label,
-                r.model_confidence,
-                r.detection_time,
+                r.label_name AS detected_label, -- Lấy tên cột đã đổi
+                r.confidence AS model_confidence, -- Lấy tên cột đã đổi
+                r.uploaded_at AS detection_time, -- Lấy tên cột đã đổi
                 l.handling_suggestion
-            FROM classification_history r
-            LEFT JOIN labels l ON LOWER(r.detected_label) = LOWER(l.name)
-            WHERE r.user_id = %s
-            ORDER BY r.detection_time DESC
+            FROM
+                classification_history r
+            LEFT JOIN
+                labels l ON LOWER(r.label_name) = LOWER(l.name)
+            WHERE
+                r.user_id = %s
+            ORDER BY
+                r.uploaded_at DESC -- Sắp xếp theo cột đã đổi
         """
         cursor.execute(sql, (user_id,))
         history = cursor.fetchall()
-        # Chuyển đổi datetime thành chuỗi cho JSON
+
+        # Xử lý kết quả (định dạng thời gian, lấy tên file, đổi tên confidence)
         for record in history:
-            # Lấy tên file từ đường dẫn đầy đủ (tùy chọn)
             if 'file_path' in record and record['file_path']:
                 record['file_name'] = os.path.basename(record['file_path'])
             else:
                 record['file_name'] = 'N/A'
-            # Định dạng lại thời gian
+
             if 'detection_time' in record and isinstance(record['detection_time'], datetime.datetime):
                 record['detection_time_str'] = record['detection_time'].strftime('%Y-%m-%d %H:%M:%S')
-            elif 'detection_time' in record: # Giữ nguyên nếu không phải datetime
+            elif 'detection_time' in record:
                  record['detection_time_str'] = str(record['detection_time'])
             else:
                  record['detection_time_str'] = 'N/A'
+
             if 'model_confidence' in record:
                 record['confidence'] = record['model_confidence']
-                # del record['model_confidence'] # Xóa key cũ nếu muốn
+
+            if 'handling_suggestion' not in record or record['handling_suggestion'] is None:
+                record['handling_suggestion'] = 'Chưa có gợi ý.'
 
         return history
+
     except mysql.connector.Error as err:
-        print(f"Lỗi không tìm lịch sử phân loại của người dùng: {err}")
+        print(f"Lỗi lấy chi tiết lịch sử phân loại: {err}")
         return None
     finally:
-        if cursor: # Đảm bảo cursor tồn tại trước khi đóng
+        if cursor:
             cursor.close()
         if conn and conn.is_connected():
             conn.close()
-
+            
 # Đừng quên import datetime ở đầu file db_handler.py
 if __name__ ==  "__main__":
     print("chạy file kiểm tra kết nối CSDL! ")
