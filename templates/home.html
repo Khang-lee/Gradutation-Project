@@ -89,7 +89,7 @@
             <h3>HỮU CƠ</h3>
             <p>Thức ăn thừa, rau củ quả...</p>
         </div>
-        </div>
+    </div>
     <p></p>
     <hr>
     <h3>connect us: khangleben123@gmail.com</h3>
@@ -110,27 +110,34 @@
 </div>
 
 <script>
-    // --- LOGIC CHO TRANG HOME ---
+    //logic trang home
     let currentUser = null; // Biến lưu thông tin user
 
     // Lấy các element thường dùng
+    //thêm element button upload
     const uploadInput = document.getElementById('upload-input');
     const uploadBtn = document.getElementById('upload-btn');
+    //thêm element button camera
     const cameraBtn = document.getElementById('camera-btn');
+    //thêm element button history
     const historyBtn = document.getElementById('history-btn');
+    //thêm element result
     const resultSection = document.getElementById('result-section');
     const resultImage = document.getElementById('result-image');
     const resultList = document.getElementById('result-list');
     const closeResultBtn = document.getElementById('close-result-btn');
+    //thêm element history resultList
     const historySection = document.getElementById('history-section');
     const historyTableBody = document.getElementById('history-table-body');
     const closeHistoryBtn = document.getElementById('close-history-btn');
+    //thêm element cho camera capture
     const cameraModal = document.getElementById('camera-modal');
     const videoFeed = document.getElementById('camera-feed');
     const captureCanvas = document.getElementById('capture-canvas');
     const captureBtn = document.getElementById('capture-btn');
     const closeCameraModalBtn = document.getElementById('close-camera-modal-btn');
     const cameraMessage = document.getElementById('camera-message');
+    //thêm element bảng thông tin user
     const userInfoButton = document.getElementById('profile-user-button');
     const userInfoModal = document.getElementById('user-info-modal');
     const closeUserInfoModalBtnX = document.getElementById('close-user-info-modal');
@@ -139,9 +146,9 @@
     const infoUsername = document.getElementById('info-username');
     const infoRole = document.getElementById('info-role');
     const infoCreatedAt = document.getElementById('info-created-at');
-    let stream = null; // Biến lưu luồng camera
+    let stream = null;
 
-    // --- HÀM KHỞI TẠO KHI TRANG TẢI ---
+    //hàm khởi tạo khi tải trang web
     document.addEventListener('DOMContentLoaded', () => {
         const userString = localStorage.getItem('user');
         if (!userString) {
@@ -151,16 +158,16 @@
         }
         currentUser = JSON.parse(userString);
 
-        // Hiển thị thông tin user và nút admin
+        //hiển thị thông tin user và nút admin
         document.getElementById('user-greeting').textContent = `Xin chào ${currentUser.username} (${currentUser.role})`;
         if (currentUser.role === 'admin') {
             document.getElementById('admin-buttons').style.display = 'inline';
         }
 
-        // Gán sự kiện Logout
+        //gán sự kiện Logout
         document.getElementById('logout-button').addEventListener('click', logout);
 
-        // Gán sự kiện cho các nút chức năng
+        //gán sự kiện cho các nút chức năng
         uploadBtn.addEventListener('click', () => uploadInput.click());
         uploadInput.addEventListener('change', handleFileUpload);
         cameraBtn.addEventListener('click', openCamera);
@@ -170,11 +177,11 @@
         closeCameraModalBtn.addEventListener('click', closeCamera);
         captureBtn.addEventListener('click', captureAndClassify);
 
-        // Gán sự kiện (tạm thời alert) cho nút admin
+        //gán sự kiện (tạm thời alert) cho nút admin
         document.getElementById('train-btn')?.addEventListener('click', () => { alert('Chức năng Train Model!'); });
         document.getElementById('dashboard-btn')?.addEventListener('click', () => { alert('Chức năng Dashboard!'); });
     
-        // Gán sự kiện cho modal user info
+        //gán sự kiện cho modal user info
         userInfoButton?.addEventListener('click', showUserInfo); // Gán sự kiện mở
         closeUserInfoModalBtnX?.addEventListener('click', closeUserInfoModal); // Gán sự kiện đóng X
         closeUserInfoModalBtnBottom?.addEventListener('click', closeUserInfoModal); // Gán sự kiện đóng nút dưới
@@ -185,11 +192,11 @@
         });
     });
 
-    // --- HÀM XỬ LÝ CÁC CHỨC NĂNG ---
+    //hàm xử lý chức năng button cho trang home
 
     function logout() {
         localStorage.removeItem('user');
-        localStorage.removeItem('rememberedUsername'); // Cũng nên xóa username đã nhớ
+        localStorage.removeItem('rememberedUsername'); //cũng nên xóa username đã nhớ
         window.location.href = '/';
     }
 
@@ -217,32 +224,33 @@
             displayError('Lỗi kết nối khi upload ảnh.');
             console.error('Upload error:', error);
         } finally {
-            uploadInput.value = ''; // Reset input
+            uploadInput.value = '';
         }
     }
 
     async function openCamera() {
          cameraMessage.textContent = '';
-         if (stream) { // Nếu camera đang mở, đóng lại trước
+         if (stream) { 
+            //nếu camera đang mở, đóng lại trước
              closeCamera();
          }
          try {
-             // Yêu cầu truy cập camera, ưu tiên camera sau trên điện thoại
+             //yêu cầu truy cập camera, ưu tiên camera sau trên điện thoại
              const constraints = {
                  video: {
-                    facingMode: "environment" // Ưu tiên camera sau
+                    facingMode: "environment" //mở camera sau trước
                  }
              };
              try {
                  stream = await navigator.mediaDevices.getUserMedia(constraints);
              } catch (err) {
                  console.log("Không tìm thấy camera sau, thử camera trước");
-                 // Nếu không có camera sau, thử lại với camera trước
+                 //nếu không có camera sau, thử lại với camera trước
                  stream = await navigator.mediaDevices.getUserMedia({ video: true });
              }
 
              videoFeed.srcObject = stream;
-             // Đợi video sẵn sàng để lấy kích thước đúng
+             //đợi video sẵn sàng để lấy kích thước đúng
              videoFeed.onloadedmetadata = () => {
                 cameraModal.style.display = 'flex';
              };
@@ -250,7 +258,7 @@
          } catch (err) {
              cameraMessage.textContent = 'Lỗi truy cập camera: ' + err.message;
              console.error("Lỗi camera: ", err);
-             // Có thể hiển thị thông báo lỗi thân thiện hơn cho người dùng
+             //có thể hiển thị thông báo lỗi thân thiện hơn cho người dùng
              alert(`Không thể truy cập camera. Vui lòng kiểm tra quyền truy cập camera cho trình duyệt.\nLỗi: ${err.message}`);
          }
      }
@@ -267,20 +275,18 @@
     async function captureAndClassify() {
         if (!stream || !currentUser) return;
         cameraMessage.textContent = 'Đang xử lý ảnh chụp...';
-        captureBtn.disabled = true; // Vô hiệu hóa nút chụp tạm thời
+        captureBtn.disabled = true; //vô hiệu hóa nút chụp tạm thời
 
-        // Vẽ frame hiện tại lên canvas
+        //vẽ frame hiện tại lên canvas
         const context = captureCanvas.getContext('2d');
         captureCanvas.width = videoFeed.videoWidth;
         captureCanvas.height = videoFeed.videoHeight;
-        // Lật ảnh nếu cần (thường camera trước bị lật ngược)
-        // context.translate(captureCanvas.width, 0);
-        // context.scale(-1, 1);
+        //lật ảnh nếu cần (thường camera trước bị lật ngược)
+        context.translate(captureCanvas.width, 0);
+        context.scale(-1, 1);
         context.drawImage(videoFeed, 0, 0, captureCanvas.width, captureCanvas.height);
-
         // Chuyển canvas thành base64
         const imageDataBase64 = captureCanvas.toDataURL('image/jpeg', 0.9); // Chất lượng 90%
-
         // Đóng camera modal ngay lập tức
         closeCamera();
         showLoading('Đang xử lý ảnh chụp...');
@@ -302,7 +308,7 @@
             console.error('Capture error:', error);
         } finally {
              cameraMessage.textContent = '';
-             captureBtn.disabled = false; // Kích hoạt lại nút chụp
+             captureBtn.disabled = false; //kích hoạt lại nút chụp
         }
     }
 
@@ -326,64 +332,64 @@
         }
     }
 
-    // --- HÀM HỖ TRỢ HIỂN THỊ ---
+    //hàm hiển thị kết quả phân loại kết quả
     function showLoading(message = 'Đang xử lý...') {
          resultList.innerHTML = `<li>${message}</li>`;
-         resultImage.src = ""; // Xóa ảnh cũ
+         resultImage.src = "";                  //xóa ảnh cũ
          resultImage.alt = message;
-         resultSection.style.display = 'block'; // Hiển thị khu vực kết quả
-         historySection.style.display = 'none'; // Ẩn lịch sử nếu đang mở
+         resultSection.style.display = 'block'; //hiển thị khu vực kết quả
+         historySection.style.display = 'none'; //ẩn lịch sử nếu đang mở
     }
 
-    function displayResults(imageUrl, detections, timestamp) { // Nhận đủ 3 tham số
+    function displayResults(imageUrl, detections, timestamp) {
         const resultImage = document.getElementById('result-image');
         const resultList = document.getElementById('result-list');
-        const resultSection = document.getElementById('result-section'); // Lấy cả khu vực kết quả
+        const resultSection = document.getElementById('result-section'); //lấy cả khu vực kết quả
 
-        resultImage.src = imageUrl || ''; // Hiển thị ảnh (gốc)
+        resultImage.src = imageUrl || ''; //hiển thị ảnh (gốc)
         resultImage.alt = imageUrl ? 'Ảnh kết quả phân loại' : 'Không có ảnh kết quả';
-        resultList.innerHTML = ''; // Xóa kết quả cũ/loading
+        resultList.innerHTML = '';        //xóa kết quả cũ/loading
 
         if (detections && detections.length > 0) {
-            // Lấy thời gian từ tham số API hoặc dùng thời gian hiện tại làm dự phòng
+            //lấy thời gian từ tham số API hoặc dùng thời gian hiện tại làm dự phòng
             const displayTime = timestamp || new Date().toLocaleString('vi-VN');
 
             detections.forEach(det => {
                 const confidenceValue = typeof det.confidence === 'number' ? det.confidence : 0;
                 const confidencePercent = (confidenceValue * 100).toFixed(1);
 
-                // Tạo list item chứa toàn bộ thông tin cho một detection
+                //tạo list item chứa toàn bộ thông tin cho một detection
                 const listItem = document.createElement('li');
                 listItem.style.marginBottom = '15px';
                 listItem.style.paddingBottom = '10px';
-                listItem.style.borderBottom = '1px solid #eee'; // Ngăn cách các kết quả
+                listItem.style.borderBottom = '1px solid #eee';
 
-                // 1. Hiển thị Nhãn và Confidence
+                //hiển thị Nhãn và Confidence
                 const labelConfidence = document.createElement('div');
                 labelConfidence.innerHTML = `<strong>${det.label || 'N/A'}</strong> (${confidencePercent}%)`;
                 listItem.appendChild(labelConfidence);
 
-                // 2. Hiển thị Gợi ý xử lý (lấy từ det.handling_suggestion)
+                //hiển thị Gợi ý xử lý (lấy từ det.handling_suggestion)
                 const suggestion = document.createElement('div');
                 suggestion.style.fontSize = '0.9em';
                 suggestion.style.color = '#555';
                 suggestion.style.marginTop = '5px';
-                suggestion.textContent = `Gợi ý: ${det.handling_suggestion || 'Không có'}`; // Lấy gợi ý từ API
+                suggestion.textContent = `Gợi ý: ${det.handling_suggestion || 'Không có'}`; //lấy gợi ý từ API
                 listItem.appendChild(suggestion);
 
-                // 3. Hiển thị Thời gian
+                //Hiển thị Thời gian
                 const timeInfo = document.createElement('div');
                 timeInfo.style.fontSize = '0.8em';
                 timeInfo.style.color = '#888';
                 timeInfo.style.marginTop = '5px';
-                timeInfo.textContent = `Thời gian: ${displayTime}`; // Sử dụng timestamp từ API
+                timeInfo.textContent = `Thời gian: ${displayTime}`; //sử dụng timestamp từ API
                 listItem.appendChild(timeInfo);
 
-                // Thêm list item hoàn chỉnh vào danh sách
+                //thêm list item hoàn chỉnh vào danh sách
                 resultList.appendChild(listItem);
             });
         } else {
-            // Thông báo nếu không có detection nào
+            //thông báo nếu không có detection nào
             resultList.innerHTML = '<li>Không phát hiện đối tượng nào.</li>';
         }
         
@@ -419,29 +425,29 @@
             }
 
 
-            // --- Cột 2: Tên File Ảnh ---
+            //ảnh
             const nameCell = row.insertCell();
             // Dùng file_name đã được xử lý ở backend
             nameCell.textContent = record.file_name || 'N/A';
 
 
-            // --- Cột 3: Nhãn Dự Đoán ---
+            //nhãn dữ đoán
             // Dùng key detected_label từ kết quả JOIN
             row.insertCell().textContent = record.detected_label || 'N/A';
 
-            // --- Cột 4: Độ Tin Cậy ---
+            //confident
             // Dùng key confidence (đã được đổi tên ở backend nếu cần)
             const confidenceValue = typeof record.confidence === 'number' ? record.confidence : 0;
             row.insertCell().textContent = (confidenceValue * 100).toFixed(1) + '%';
 
-            // --- Cột 5: Gợi ý Xử Lý ---
+            //gợi ý xử lý
             const suggestionCell = row.insertCell();
-            // Dùng key handling_suggestion từ kết quả JOIN
+            //lấy key handling_suggestion từ kết quả JOIN
             suggestionCell.textContent = record.handling_suggestion || 'N/A';
             suggestionCell.style.whiteSpace = 'pre-wrap'; // Cho phép xuống dòng
             suggestionCell.style.minWidth = '200px'; // Đặt chiều rộng tối thiểu
 
-            // --- Cột 6: Thời Gian ---
+            //thời gian upload
             // Dùng key detection_time_str đã được định dạng ở backend
             row.insertCell().textContent = record.detection_time_str || 'N/A';
 
