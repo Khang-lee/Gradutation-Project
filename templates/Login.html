@@ -58,7 +58,7 @@
                         <button type="button" class="btn-facebook">Facebook</button>
                         <button type="button" class="btn-X">Twitter</button>
                         <button type="button" class="btn-whatapps">whatapps</button>
-                        <button type="button" class="btn-gg">google</button>
+                        <button type="button" class="btn-gg">Google</button>
                     </div>
         </div> </div> </div> <div id="info-modals-container">
     <div class="info-modal" id="modal-baovemoitruong">
@@ -86,7 +86,7 @@
          </div>
     </div>
 </div> <script>
-    // --- 1. LOGIC ĐIỀU KHIỂN CÁC TAB ---
+    //logic cho các tab điều khiển
     const tabs = document.querySelectorAll('.tab');
     const formContents = document.querySelectorAll('.form-content');
 
@@ -101,13 +101,13 @@
         });
     });
 
-    // --- 2. LOGIC GỬI YÊU CẦU ĐĂNG NHẬP VÀ REMEMBER ME ---
+    //logic gửi yêu cầu đăng nhập và rememberme
     const loginForm = document.getElementById('login-form'); // Lấy form đăng nhập
-    const rememberMeCheckbox = document.getElementById('remember-me'); // Lấy checkbox
-    const usernameInput = document.getElementById('login-username');  // Lấy ô username
-    const loginMessageEl = document.getElementById('login-message'); // Lấy dòng thông báo
+    const rememberMeCheckbox = document.getElementById('remember-me');  //lấy checkbox
+    const usernameInput = document.getElementById('login-username');    //lấy ô username
+    const loginMessageEl = document.getElementById('login-message');    //ấy dòng thông báo
 
-    // Điền username đã nhớ khi tải trang
+    //điền username đã nhớ khi tải trang
     document.addEventListener('DOMContentLoaded', () => {
         const rememberedUsername = localStorage.getItem('rememberedUsername');
         if (rememberedUsername) {
@@ -116,7 +116,7 @@
         }
     });
 
-    // Xử lý khi submit form đăng nhập
+    //xử lý khi submit form đăng nhập
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const username = usernameInput.value;
@@ -132,13 +132,13 @@
             const data = await response.json();
 
             if (response.ok && data.status === 'success') {
-                // Xử lý Remember Me
+                //xử lý Remember Me
                 if (rememberMeCheckbox.checked) {
                     localStorage.setItem('rememberedUsername', username);
                 } else {
                     localStorage.removeItem('rememberedUsername');
                 }
-                // Lưu user và chuyển hướng
+                //lưu user và chuyển hướng
                 localStorage.setItem('user', JSON.stringify(data.user));
                 window.location.href = '/home';
             } else {
@@ -150,16 +150,16 @@
         }
     });
 
-    // --- 3. LOGIC GỬI YÊU CẦU ĐĂNG KÝ ---
-    const registerForm = document.getElementById('register-form'); // Lấy form đăng ký
-    const registerMessageEl = document.getElementById('register-message'); // Lấy dòng thông báo
+    //logic gửi yêu cầu đăng kí
+    const registerForm = document.getElementById('register-form'); //lấy form đăng ký
+    const registerMessageEl = document.getElementById('register-message'); //lấy dòng thông báo
 
     registerForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const username = document.getElementById('register-username').value;
         const password = document.getElementById('register-password').value;
-        registerMessageEl.textContent = ''; // Xóa thông báo cũ
-        registerMessageEl.style.color = 'red'; // Mặc định màu đỏ
+        registerMessageEl.textContent = ''; //xóa thông báo cũ
+        registerMessageEl.style.color = 'red'; //mặc định màu đỏ
 
         try {
             const response = await fetch('/api/register', {
@@ -180,26 +180,26 @@
         }
     });
 
-    // --- 4. LOGIC ĐIỀU KHIỂN CÁC POP-UP MODAL (Sửa lỗi chính tả) ---
-    const infoBoxes = document.querySelectorAll('.info-box'); // Nhất quán tên biến
+    //logic điều khiển bảng pop-up bên leftpanel
+    const infoBoxes = document.querySelectorAll('.info-box');
     const infoModalsContainer = document.getElementById('info-modals-container'); // Container của modals
-    const infoModals = document.querySelectorAll('.info-modal');       // Nhất quán tên biến
-    const closeButtons = document.querySelectorAll('.close-modal');    // Nhất quán tên biến VÀ sửa selector
+    const infoModals = document.querySelectorAll('.info-modal');
+    const closeButtons = document.querySelectorAll('.close-modal');
 
-    // Open modal on info-box click
-    infoBoxes.forEach(box => { // Dùng tên biến đã khai báo
+    //mở modal khi di chuột vào click
+    infoBoxes.forEach(box => {
         box.addEventListener('click', () => {
             const targetModalId = box.dataset.target;
             const targetModal = document.getElementById(targetModalId);
             if (targetModal) {
-                targetModal.style.display = 'flex'; // Use flex to center content
+                targetModal.style.display = 'flex';
             } else {
                 console.error(`Không tìm thấy modal với ID: ${targetModalId}`);
             }
         });
     });
 
-    // Close modal on close button (X) click
+    //nút tắt modal (X)
     closeButtons.forEach(button => { // Dùng tên biến đã khai báo
         button.addEventListener('click', () => {
             const modal = button.closest('.info-modal');
@@ -209,23 +209,24 @@
         });
     });
 
-    // Close modal when clicking outside the modal content
+    //tắt bảng modal khi bấm ngoài modal
     window.addEventListener('click', (event) => {
-        infoModals.forEach(modal => { // Dùng tên biến đã khai báo
-            if (event.target === modal) { // Check if the click is directly on the modal background
+        infoModals.forEach(modal => {
+            if (event.target === modal) {
+                //kiểm tra người dùng có bấm ngoài modal
                 modal.style.display = 'none';
             }
         });
     });
 
-    // --- THÊM LOGIC CHO CÁC NÚT SOCIAL LOGIN ---
+    //logic cho nút social button
     const socialButtons = document.querySelectorAll('.social-login-buttons button');
 
     // Gán sự kiện click cho từng nút
     socialButtons.forEach(button => {
         button.addEventListener('click', (event) => {
-            event.preventDefault(); // Ngăn hành động mặc định (nếu có)
-            alert('Tính năng chưa cập nhật'); // Hiển thị thông báo
+            event.preventDefault(); 
+            alert('Tính năng chưa cập nhật');
         });
     });
 
